@@ -1,0 +1,42 @@
+version: '3'
+services:
+   teamCity:
+      image: jetbrains/teamcity-server
+      container_name: team-city
+      ports:
+        - 8112:8111
+      networks:
+            - team-city
+      volumes:
+         - 'datadir:/data/teamcity_server/datadir'
+         - 'logs:/opt/teamcity/logs'
+
+   mariadb:
+        image: 'mariadb:10'
+        ports:
+            - '33069:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: 'yousef'
+            MYSQL_ROOT_HOST: "yousef"
+            MYSQL_DATABASE: 'teamcity'
+            MYSQL_USER: 'yousef'
+            MYSQL_PASSWORD: 'yousef'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        volumes:
+            - 'mariadb:/var/lib/mysql'
+        networks:
+            - team-city
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-pyousef" ]
+            retries: 3
+            timeout: 5s
+networks:
+    team-city:
+        driver: bridge
+volumes:
+    mariadb:
+        driver: local
+    datadir:
+        driver: local
+    logs:
+        driver: local
